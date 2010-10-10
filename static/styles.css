@@ -10,3 +10,8 @@ div#main {
 div#main h2#main_title {
 	 
 }
+
+div.post_summary {
+	margin-bottom: 1em;
+	border-bottom: 1px solid black;
+}

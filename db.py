@@ -64,7 +64,7 @@ def create_dbs():
 
 def add_post(author_id, title, body):
     q = """insert into posts (`author_id`, `title`, `body`, `date`)
-                VALUES ("%s", "%s", "%s", UTC_TIMESTAMP())"""
+                VALUES ('%s', '%s', '%s', UTC_TIMESTAMP())"""
     c.execute(q % (author_id, title, body))
     return c.lastrowid
 
@@ -83,7 +83,7 @@ def get_post(post_id):
 
 def add_author(name, passwd):
     q = """insert into authors (`name`, `pass`, `joined`)
-              VALUES ("%s", "%s", UTC_TIMESTAMP())"""
+              VALUES ('%s', '%s', UTC_TIMESTAMP())"""
     c.execute(q % (name, passwd))
 
 def get_author(user):
@@ -103,18 +103,25 @@ def get_author(user):
 
 def add_comment(post_id, name, title, body):
     q = """insert into `comments` (`post_id`, `name`, `title`, `body`, `date`)
-                VALUES ("%s", "%s", "%s", "%s", UTC_TIMESTAMP())"""
+                VALUES ('%s', '%s', '%s', '%s', UTC_TIMESTAMP())"""
     c.execute(q % (post_id, name, title, body))
 
-def get_comments(post_id=None):
+def del_comment(comment_id):
+    return c.execute("delete from `comments` where `id`=%s" % comment_id)
+
+def get_comments(post_id):
     q = "select * from `comments` where `post_id`='%s'"
     c.execute(q % post_id)
     return c.fetchall()
 
+def get_comment(comment_id):
+    c.execute("select * from `comments` where `id`=%s" % comment_id)
+    return c.fetchone()
+
 def login(user, password):
     """Check user password against database. Return session token on success."""
 
-    q = """select * from `authors` where `name`="%s" and `pass`=SHA1("%s")"""
+    q = """select * from `authors` where `name`='%s' and `pass`=SHA1('%s')"""
     rows = c.execute(q % (user, password))
     if rows > 1:
         raise "Error: query returned more than one row!"

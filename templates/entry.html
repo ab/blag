@@ -7,4 +7,51 @@
 <div id="post_body">
   ${post["body"].strip().replace("\n","<br/>")}
 </div>
+<hr/>
+<h3>Comments</h3>
+<div id="comments">
+  % for c in comments:
+  <div class="comment_holder">
+    <div class="comment_header">
+      <div>${c["title"]}</div>
+      <div>By ${c["name"]}</div>
+      <div>At ${c["date"]}</div>
+    </div>
+    <div class="comment_delete">
+      <form action="/delete_comment" method="post">
+	<input type="hidden" name="comment_id" value="${c['id']}" />
+	<input type="submit" name="submit" value="Delete"/>
+      </form>
+    </div>
+    <div class="comment_body">
+      ${c["body"]}
+    </div>
+  </div>
+  <hr/>
+  % endfor
+  <h3>Submit A Comment</h3>
+  <div id="comment_form">
+    <form method="post" action="">
+      <table>
+	<thead></thead>
+	<tbody>
+	  <tr>
+	    <th><label for="name">Your Name</label></th>
+	    <td><input type="text" name="name" value=""/></td>
+	  </tr>
+	  <tr>
+	    <th><label for="title">Title</label></th>
+	    <td><input type="text" name="title" value=""/></td>
+	  </tr>
+	  <tr>
+	    <th></th><td><textarea name="body"></textarea></td>
+	  </tr>
+	  <tr>
+	    <td><input type="submit" name="submit" value="Post"/></td>
+	  </tr>
+	</tbody>
+      </table>
+    </form>
+  </div>
+</div>
 </%def>

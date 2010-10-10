@@ -53,9 +53,14 @@ class BlagController(object):
         return {"posts":posts, "page_title": "Home"}
     @cherrypy.expose
     @render_with("entry")
-    def entry(self, postid):
-        post = dereference_author(db.get_post(postid))
-        return {"page_title": post["title"], "post": post}
+    def entry(self, postid,name=None,title=None,body=None,submit=None):
+        if cherrypy.request.method.lower() == "get":
+            post = dereference_author(db.get_post(postid))
+            comments = db.get_comments(postid)
+            return {"page_title": post["title"], "post": post, "comments":comments}
+        else:
+            db.add_comment(postid,name,title,body)
+            raise cherrypy.HTTPRedirect("")
     @cherrypy.expose
     @render_with("add_post")
     def add_post(self, body=None, title=None, submit=None):
@@ -76,8 +81,22 @@ class BlagController(object):
                 raise cherrypy.HTTPRedirect("/")
             else:
                 failed = True
-        return {"page_title":"Login", "failed":failed}        
-        
+        return {"page_title":"Login", "failed":failed}              
+    @cherrypy.expose
+    def delete_comment(self, comment_id=None, submit=None):
+        if cherrypy.request.method.lower() != "post":
+            error("Cannot service non-post requests.")
+        author = get_author()
+        if author is None:
+            error("You need to be logged in to delete comments.")
+        comment = db.get_comment(comment_id)
+        if comment is None:
+            error("Invalid comment id.")
+        post = db.get_post(comment["post_id"])
+        if post["author_id"] == author["id"]:
+            if not db.del_comment(comment_id):
+                error("Failed to delete comment.")
+        raise cherrypy.HTTPRedirect("/entry/%s" % post["id"])
 
 def dereference_author(post):
     d = dict(post)
