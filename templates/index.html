@@ -1,0 +1,17 @@
+<%inherit file="sitebase.html" />
+<%def name="content()">
+<div id="index_header">
+  <h3>Previous Posts</h3>
+</div>
+<div id="post_list">
+  % for post in posts:
+  <div class="post_summary">
+    <div class="post_summary_title">
+      <a href="/entry/${post['id']}">${post["title"]}</a>
+    </div>
+    <div class="post_summary_date">${post["date"]}</div>
+    <div class="post_summary_author">${post["author"]["name"]}</div>
+  </div>
+  % endfor
+</div>
+</%def>

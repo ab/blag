@@ -1,0 +1,10 @@
+<%inherit file="sitebase.html" />
+<%def name="content()">
+<div id="post_header">
+  <div id="post_author">By ${post["author"]["name"]}</div>
+  <div id="post_date">On ${post["date"]}</div>
+</div>
+<div id="post_body">
+  ${post["body"].strip().replace("\n","<br/>")}
+</div>
+</%def>

@@ -1,0 +1,22 @@
+<%inherit file="sitebase.html" />
+<%def name="content()">
+<form method="POST" action="">
+% if failed:
+<p>Login failed. Please try again.</p>
+% endif
+<table>
+  <thead></thead>
+  <tbody>
+    <tr>
+      <th><label for="author_name">Author</label></th>
+      <td><input type="text" name="author_name" value=""/></td>
+    </tr>
+    <tr>
+      <th><label for="password">Password</label></th>
+      <td><input type="password" name="password" value=""/></td>
+    </tr>
+    <tr><td><input type="submit" value="Login" name="submit"/></td></tr>
+  </tbody>
+</table>
+</form>
+</%def>

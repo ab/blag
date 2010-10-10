@@ -21,7 +21,9 @@ def get_cursor():
     return db.cursor(cursorclass=MySQLdb.cursors.DictCursor)
 
 def gen_token(length):
-    return ''.join(chr(random.randrange(32,126)) for x in range(length))
+     s = ''.join(chr(random.randrange(32,126)) for x in range(length))
+     s.replace("'", '_')
+     return s
 
 def create_dbs():
     q = """ CREATE TABLE IF NOT EXISTS `posts` (
@@ -63,7 +65,8 @@ def create_dbs():
 def add_post(author_id, title, body):
     q = """insert into posts (`author_id`, `title`, `body`, `date`)
                 VALUES ("%s", "%s", "%s", UTC_TIMESTAMP())"""
-    return c.execute(q % (author_id, title, body))
+    c.execute(q % (author_id, title, body))
+    return c.lastrowid
 
 def get_posts(author_id=None):
     if author_id is not None:
@@ -121,14 +124,15 @@ def login(user, password):
 
     token = gen_token(20)
     q = "update `authors` set `session`='%s' where `name`='%s'"
+    print q % (token, user)
     c.execute(q % (token, user))
     return token
 
-def check_session(user, token):
+def check_session(user_id, token):
     """Check that token represents a valid session for specified user."""
 
-    q = "select * from `authors` where `name`='%s' and `session`='%s'"
-    rows = c.execute(q % (user, token))
+    q = "select * from `authors` where `id`=%s and `session`='%s'"
+    rows = c.execute(q % (user_id, token))
     if rows != 1:
         return None
-    return c.fetch_one()
+    return c.fetchone()

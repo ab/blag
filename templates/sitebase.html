@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      % if page_title:
+      ${page_title} -
+      % endif
+      HCS Boot Camp Blag
+    </title>
+    <link href="/static/styles.css" rel="stylesheet"/>
+  </head>
+  <body>
+    <div id="main">
+      % if page_title:
+      <h2 id="main_title">${page_title}</h2>
+      % endif
+      <div id="content">
+	${self.content()}
+      </div>
+    </div>
+  </body>
+</html>

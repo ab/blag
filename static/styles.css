@@ -1,0 +1,12 @@
+div#main {
+	 max-width: 640px;
+	 margin-left: auto;
+	 margin-right: auto;
+	 margin-top: 16px;
+	 
+	 font-family: Tahoma,georgia,sans-serif,times;
+}
+
+div#main h2#main_title {
+	 
+}
