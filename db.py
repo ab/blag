@@ -60,9 +60,19 @@ def create_dbs():
 
     return True
 
-def get_posts(author_name=None):
-    if author_name is not None:
-        c.execute("")
+def add_post(author_id, title, body):
+    q = """insert into posts (`author_id`, `title`, `body`, `date`)
+                VALUES ("%s", "%s", "%s", UTC_TIMESTAMP())"""
+    return c.execute(q % (author_id, title, body))
+
+def get_posts(author_id=None):
+    if author_id is not None:
+        q = "select * from posts where `id`='%s'"
+        c.execute(q % author_id)
+    else:
+        q = "select * from posts"
+        c.execute(q)
+    return c.fetchall()
 
 def get_post(post_id):
     c.execute("select * from posts where `id`=%s" % post_id)
@@ -73,12 +83,34 @@ def add_author(name, passwd):
               VALUES ("%s", "%s", UTC_TIMESTAMP())"""
     c.execute(q % (name, passwd))
 
-def add_post(author_id, title, body):
-    q = """insert into posts (`author_id`, `title`, `body`, `date`)
-                VALUES ("%s", "%s", "%s", UTC_TIMESTAMP())"""
-    return c.execute(q % (author_id, title, body))
+def get_author(user):
+    """Get a single author record by name or id."""
+    if isinstance(user, (int, long)):
+        user_id = int(user)
+        by_name = False
+    else:
+        by_name = True
+
+    if by_name:
+        c.execute("select * from `authors` where `name`='%s'" % user)
+    else:
+        c.execute("select * from `authors` where `id`=%s" % user_id)
+
+    return c.fetchone()
+
+def add_comment(post_id, name, title, body):
+    q = """insert into `comments` (`post_id`, `name`, `title`, `body`, `date`)
+                VALUES ("%s", "%s", "%s", "%s", UTC_TIMESTAMP())"""
+    c.execute(q % (post_id, name, title, body))
+
+def get_comments(post_id=None):
+    q = "select * from `comments` where `post_id`='%s'"
+    c.execute(q % post_id)
+    return c.fetchall()
 
 def login(user, password):
+    """Check user password against database. Return session token on success."""
+
     q = """select * from `authors` where `name`="%s" and `pass`=SHA1("%s")"""
     rows = c.execute(q % (user, password))
     if rows > 1:
@@ -93,6 +125,10 @@ def login(user, password):
     return token
 
 def check_session(user, token):
+    """Check that token represents a valid session for specified user."""
+
     q = "select * from `authors` where `name`='%s' and `session`='%s'"
     rows = c.execute(q % (user, token))
-    return rows == 1
+    if rows != 1:
+        return None
+    return c.fetch_one()
