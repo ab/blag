@@ -8,12 +8,25 @@
       HCS Boot Camp Blag
     </title>
     <link href="/static/styles.css" rel="stylesheet"/>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" language="javascript" type="text/javascript"></script>
   </head>
   <body>
     <div id="main">
-      % if page_title:
-      <h2 id="main_title">${page_title}</h2>
-      % endif
+      <div id="main_header">
+	% if page_title:
+	<div id="title_holder">
+	  <h2 id="main_title">${page_title}</h2>
+	</div>
+	% endif
+	<div id="login_panel">
+	  % if author:
+	  Logged in as <b>${author["name"]}</b>
+	  % else:
+	  <a href="/login">Login</a>
+	  % endif
+	</div>
+      </div>
+      <div class="clear"></div>
       <div id="content">
 	${self.content()}
       </div>

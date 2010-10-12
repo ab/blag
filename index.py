@@ -35,6 +35,8 @@ def render_with(template_name):
         def wrapper(*args, **kwargs):
             try:
                 tmpl_kwargs = fn(*args, **kwargs)
+                if "author" not in tmpl_kwargs:
+                    tmpl_kwargs["author"] = get_author()
             except ErrorMessageException, exn:
                 t = DEFAULT_LOOKUP.get_template("error.html")
                 return t.render(msg=exn.msg, page_title="Error")
@@ -66,7 +68,7 @@ class BlagController(object):
     def add_post(self, body=None, title=None, submit=None):
         author = get_author()
         if author is None:
-            error("You are not logged in.")
+            raise cherrypy.HTTPRedirect("/login")
         if cherrypy.request.method.lower() == "get":
             return {"page_title":"Create Post"}
         post_id = int(db.add_post(author["id"], title, body))
@@ -97,6 +99,18 @@ class BlagController(object):
             if not db.del_comment(comment_id):
                 error("Failed to delete comment.")
         raise cherrypy.HTTPRedirect("/entry/%s" % post["id"])
+    @cherrypy.expose
+    @render_with("register")
+    def register(self, author_name=None, password=None, confirm=None,
+                 submit=None):
+        if cherrypy.request.method.lower() != "post":
+            return {}
+        if db.get_author(author_name) is not None:
+            return {"message":"That author already exists."}
+        elif password != confirm:
+            return {"message":"Passwords did not match."}
+        db.add_author(author_name, password)
+        raise cherrypy.HTTPRedirect("/")
 
 def dereference_author(post):
     d = dict(post)
