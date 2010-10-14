@@ -83,7 +83,7 @@ def get_post(post_id):
 
 def add_author(name, passwd):
     q = """insert into authors (`name`, `pass`, `joined`)
-              VALUES ('%s', '%s', UTC_TIMESTAMP())"""
+              VALUES ('%s', SHA1('%s'), UTC_TIMESTAMP())"""
     c.execute(q % (name, passwd))
 
 def get_author(user):
@@ -143,3 +143,8 @@ def check_session(user_id, token):
     if rows != 1:
         return None
     return c.fetchone()
+
+def clear_posts(min_index):
+    q = "delete from `posts` where `id`>%s"
+    rows = c.execute(q % min_index)
+    return not not rows

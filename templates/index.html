@@ -5,7 +5,7 @@
   <h3>Previous Posts</h3>
 </div>
 <div id="post_list">
-  % for post in posts:
+  % for post in reversed(posts):
   <div class="post_summary">
     <div class="post_summary_title">
       <a href="/entry/${post['id']}">${post["title"]}</a>

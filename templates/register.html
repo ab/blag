@@ -1,4 +1,4 @@
-<%inherit file="sitebase.html">
+<%inherit file="sitebase.html" />
 <%def name="content()">
 % if message:
 <p><b>${message}</b></p>
@@ -9,7 +9,7 @@
 <p>Password</p>
 <p><input type="password" name="password" /></p>
 <p>Confirm Password</p>
-<p><input type="confirm" name="password" /></p>
+<p><input type="password" name="confirm" /></p>
 <p><input type="submit" name="submit" value="Submit" /></p>
 </form>
 </%def>

@@ -105,11 +105,19 @@ class BlagController(object):
                  submit=None):
         if cherrypy.request.method.lower() != "post":
             return {}
-        if db.get_author(author_name) is not None:
+        if author_name is None or password is None:
+            return {"message":
+                        "You must specify both author name and password."}
+        elif db.get_author(author_name) is not None:
             return {"message":"That author already exists."}
         elif password != confirm:
             return {"message":"Passwords did not match."}
         db.add_author(author_name, password)
+        login_author(author_name,password)
+        raise cherrypy.HTTPRedirect("/")
+    @cherrypy.expose
+    def remove_posts(self):
+        db.clear_posts(11)
         raise cherrypy.HTTPRedirect("/")
 
 def dereference_author(post):
@@ -150,7 +158,7 @@ def main(argv):
     parser.add_option("-H", "--hostname", dest="hostname", default="alberge.org",
                       help="Hostname on which cherrypy will listen.")
     parser.add_option("-p", "--port", dest="port", default=8000,
-                      help="Port on which cherrypy will listen.")
+                      help="Port on which cherrypy will listen.", type=int)
     opts,args = parser.parse_args(argv)
     conf = {"/": {"tools.staticdir.root": path.abspath(".")},
             "/static": {"tools.staticdir.on": True,
