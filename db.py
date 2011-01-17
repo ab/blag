@@ -19,12 +19,16 @@ DB_DB = 'hcs_blag'
 db = MySQLdb.connect(host=DB_HOST, user=DB_USER, passwd=DB_PASS, db=DB_DB)
 c = db.cursor(cursorclass=MySQLdb.cursors.DictCursor)
 
+class DoesNotExist(Exception):
+    pass
+
 def get_cursor():
     return db.cursor(cursorclass=MySQLdb.cursors.DictCursor)
 
 def gen_token(length):
      s = ''.join(chr(random.randrange(32,126)) for x in range(length))
-     s.replace("'", '_')
+     s = s.replace("'", '_')
+     s = s.replace("\\", '_')
      return s
 
 def create_dbs():
@@ -87,15 +91,18 @@ def get_posts(author_id=None):
     return c.fetchall()
 
 def get_post(post_id):
-    c.execute("select * from posts where `id`=%s" % post_id)
+    rows = c.execute("select * from posts where `id`=%s" % post_id)
+    if not rows:
+        raise DoesNotExist
     return c.fetchone()
 
 def add_author(name, passwd):
     q = """insert into authors (`name`, `pass`, `updated`, `session`)
               VALUES ('%s', SHA1('%s'), UTC_TIMESTAMP(), '%s')"""
+    token = gen_token(20)
     if DEBUG:
         print "New Author(%r)" % name
-    c.execute(q % (name, passwd, gen_token(20)))
+    c.execute(q % (name, passwd, token))
 
 def get_author(user):
     """Get a single author record by name or id."""
@@ -128,7 +135,9 @@ def get_comments(post_id):
     return c.fetchall()
 
 def get_comment(comment_id):
-    c.execute("select * from `comments` where `id`=%s" % comment_id)
+    rows = c.execute("select * from `comments` where `id`=%s" % comment_id)
+    if not rows:
+        raise DoesNotExist
     return c.fetchone()
 
 def login(user, password):
