@@ -10,6 +10,8 @@ import MySQLdb
 import MySQLdb.cursors
 import random
 
+DEBUG = True
+
 DB_HOST = 'localhost'
 DB_USER = 'hcs_blag'
 DB_PASS = 'SVBUm8Px3CGn8c29'
@@ -62,10 +64,17 @@ def create_dbs():
 
     return True
 
+def drop_tables(verbose=False):
+    for table in ['posts', 'comments', 'authors']:
+        if verbose:  print "DROP TABLE IF EXISTS %s;" % table
+        c.execute("DROP TABLE IF EXISTS %s" % table)
+
 def add_post(author_id, title, body):
     q = """insert into posts (`author_id`, `title`, `body`, `date`)
                 VALUES ('%s', '%s', '%s', UTC_TIMESTAMP())"""
     c.execute(q % (author_id, title, body))
+    if DEBUG:
+        print "New Post(%r, %r, %r)" % (author_id, title, body)
     return c.lastrowid
 
 def get_posts(author_id=None):
@@ -82,9 +91,11 @@ def get_post(post_id):
     return c.fetchone()
 
 def add_author(name, passwd):
-    q = """insert into authors (`name`, `pass`, `joined`)
-              VALUES ('%s', SHA1('%s'), UTC_TIMESTAMP())"""
-    c.execute(q % (name, passwd))
+    q = """insert into authors (`name`, `pass`, `updated`, `session`)
+              VALUES ('%s', SHA1('%s'), UTC_TIMESTAMP(), '%s')"""
+    if DEBUG:
+        print "New Author(%r)" % name
+    c.execute(q % (name, passwd, gen_token(20)))
 
 def get_author(user):
     """Get a single author record by name or id."""
@@ -104,6 +115,8 @@ def get_author(user):
 def add_comment(post_id, name, title, body):
     q = """insert into `comments` (`post_id`, `name`, `title`, `body`, `date`)
                 VALUES ('%s', '%s', '%s', '%s', UTC_TIMESTAMP())"""
+    if DEBUG:
+        print "New Comment(%r, %r, %r, %r)" % (post_id, name, title, body)
     c.execute(q % (post_id, name, title, body))
 
 def del_comment(comment_id):
@@ -131,7 +144,6 @@ def login(user, password):
 
     token = gen_token(20)
     q = "update `authors` set `session`='%s' where `name`='%s'"
-    print q % (token, user)
     c.execute(q % (token, user))
     return token
 
@@ -145,6 +157,12 @@ def check_session(user_id, token):
     return c.fetchone()
 
 def clear_posts(min_index):
-    q = "delete from `posts` where `id`>%s"
+    q = "delete from `posts` where `id` >= %s"
     rows = c.execute(q % min_index)
     return not not rows
+
+def clear_comments(min_index):
+    q = "delete from `posts` where `id` >= %s"
+    rows = c.execute(q % min_index)
+    return not not rows
+
