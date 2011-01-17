@@ -83,7 +83,7 @@ class BlagController(object):
                 raise cherrypy.HTTPRedirect("/")
             else:
                 failed = True
-        return {"page_title":"Login", "failed":failed}              
+        return {"page_title":"Login", "failed":failed}
     @cherrypy.expose
     def delete_comment(self, comment_id=None, submit=None):
         if cherrypy.request.method.lower() != "post":
@@ -131,7 +131,6 @@ def get_author():
     author_id = cookie.get("author_id")
     if session_token is None or author_id is None:
         return None
-    print "aid,tok:",int(author_id.value), session_token.value
     author = db.check_session(int(author_id.value),session_token.value)
     if author is not None:
         return author
