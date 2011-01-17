@@ -13,22 +13,26 @@
   <body>
     <div id="main">
       <div id="main_header">
-	% if page_title:
-	<div id="title_holder">
-	  <h2 id="main_title">${page_title}</h2>
-	</div>
-	% endif
-	<div id="login_panel">
-	  % if author:
-	  Logged in as <b>${author["name"]}</b>
-	  % else:
-	  <a href="/login">Login</a>
-	  % endif
-	</div>
+        % if page_title:
+        <div id="title_holder">
+          <h2 id="main_title">${page_title}</h2>
+        </div>
+        % endif
+        <div id="login_panel">
+          % if author:
+          Logged in as <b>${author["name"]}</b>
+          % else:
+          <a href="/login">Login</a>
+          % endif
+          <br />
+          % if post:
+          Return to <a href="/">Home</a>
+          % endif
+        </div>
       </div>
       <div class="clear"></div>
       <div id="content">
-	${self.content()}
+        ${self.content()}
       </div>
     </div>
   </body>
